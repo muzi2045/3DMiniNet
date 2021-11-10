@@ -1,0 +1,4 @@
+.idea
+.vscode
+./pytorch_code/lidar-bonnetal/train/tasks/semantic/models/**
+./pytorch_code/lidar-bonnetal/train/tasks/semantic/onnx_export/**

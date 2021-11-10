@@ -13,6 +13,10 @@ from PIL import Image
 import __init__ as booger
 import collections
 import copy
+import sys
+path = "/opt/ros/kinetic/lib/python2.7/dist-packages"
+if path in sys.path:
+  sys.path.remove(path)
 import cv2
 import os
 import numpy as np

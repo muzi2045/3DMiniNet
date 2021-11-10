@@ -2,6 +2,7 @@
 # This file is covered by the LICENSE file in the root of this project.
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+import time
 
 import random
 class LaserScan:
@@ -139,8 +140,10 @@ class LaserScan:
       self.remissions = np.zeros((points.shape[0]), dtype=np.float32)
 
     # if projection is wanted, then do it and fill in the structure
+    t = time.time()
     if self.project:
       self.do_range_projection()
+    print(f"projection cost time: {time.time() - t}")
 
   def do_range_projection(self):
     """ Project a pointcloud into a spherical projection image.projection.
@@ -148,14 +151,17 @@ class LaserScan:
         if the value of the constructor was not set (in case you change your
         mind about wanting the projection)
     """
+    
     # laser parameters
     fov_up = self.proj_fov_up / 180.0 * np.pi      # field of view up in rad
     fov_down = self.proj_fov_down / 180.0 * np.pi  # field of view down in rad
     fov = abs(fov_down) + abs(fov_up)  # get field of view total in rad
 
+    t = time.time()
     # get depth of all points
     depth = np.linalg.norm(self.points, 2, axis=1)
-
+    print(f"compute cost time: {time.time() - t}")
+    
     # get scan components
     scan_x = self.points[:, 0]
     scan_y = self.points[:, 1]
@@ -172,37 +178,49 @@ class LaserScan:
     # scale to image size using angular resolution
     proj_x *= self.proj_W                              # in [0.0, W]
     proj_y *= self.proj_H                              # in [0.0, H]
-
+    
+    proj_x = np.nan_to_num(proj_x)
+    proj_y = np.nan_to_num(proj_y)
+    
+    
+    
     # round and clamp for use as index
     proj_x = np.floor(proj_x)
     proj_x = np.minimum(self.proj_W - 1, proj_x)
     proj_x = np.maximum(0, proj_x).astype(np.int32)   # in [0,W-1]
-    self.proj_x = np.copy(proj_x)  # store a copy in orig order
+    self.proj_x = proj_x
+    # self.proj_x = np.copy(proj_x)  # store a copy in orig order
 
     proj_y = np.floor(proj_y)
     proj_y = np.minimum(self.proj_H - 1, proj_y)
     proj_y = np.maximum(0, proj_y).astype(np.int32)   # in [0,H-1]
-    self.proj_y = np.copy(proj_y)  # stope a copy in original order
+    self.proj_y = proj_y
+    # self.proj_y = np.copy(proj_y)  # stope a copy in original order
 
+
+
+    # t = time.time()
     # copy of depth in original order
-    self.unproj_range = np.copy(depth)
+    # self.unproj_range = np.copy(depth)
+    self.unproj_range = depth
 
     # order in decreasing depth
     indices = np.arange(depth.shape[0])
-    order = np.argsort(depth)[::-1]
-    depth = depth[order]
-    indices = indices[order]
-    points = self.points[order]
-    remission = self.remissions[order]
-    proj_y = proj_y[order]
-    proj_x = proj_x[order]
+    # order = np.argsort(depth)[::-1]
+    # depth = depth[order]
+    # indices = indices[order]
+    # points = self.points[order]
+    # remission = self.remissions[order]
+    # proj_y = proj_y[order]
+    # proj_x = proj_x[order]
 
     # assing to images
     self.proj_range[proj_y, proj_x] = depth
-    self.proj_xyz[proj_y, proj_x] = points
-    self.proj_remission[proj_y, proj_x] = remission
+    self.proj_xyz[proj_y, proj_x] = self.points
+    self.proj_remission[proj_y, proj_x] = self.remissions
     self.proj_idx[proj_y, proj_x] = indices
     self.proj_mask = (self.proj_idx > 0).astype(np.int32)
+    # print(f"part 2 time cost: {time.time() - t}")
 
 
 class SemLaserScan(LaserScan):

@@ -10,9 +10,6 @@ import torch
 from torch.nn import functional as f
 
 
-
-
-
 class moduleProyection(nn.Module):
     def __init__(self, channels_in, channels_out, channels=[16, 32, 64, 128], conv_feature=128, neighbours=16,
                  track_running_stats=True):

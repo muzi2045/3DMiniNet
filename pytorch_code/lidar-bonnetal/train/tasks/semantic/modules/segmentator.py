@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tasks.semantic.postproc.CRF import CRF
-import __init__ as booger
+# import __init__ as booger
 
 
 class Segmentator(nn.Module):
@@ -18,9 +18,11 @@ class Segmentator(nn.Module):
     self.path_append = path_append
     self.strict = False
 
+    self.train_path = "/home/muzi2045/Documents/project/3D-MiniNet/pytorch_code/lidar-bonnetal/train"
+
     # get the model
     bboneModule = imp.load_source("bboneModule",
-                                  booger.TRAIN_PATH + '/backbones/' +
+                                  self.train_path + '/backbones/' +
                                   self.ARCH["backbone"]["name"] + '.py')
     self.backbone = bboneModule.Backbone(params=self.ARCH["backbone"])
 
@@ -44,7 +46,7 @@ class Segmentator(nn.Module):
     _, stub_skips = self.backbone([stub, stub_points])
 
     decoderModule = imp.load_source("decoderModule",
-                                    booger.TRAIN_PATH + '/tasks/semantic/decoders/' +
+                                    self.train_path + '/tasks/semantic/decoders/' +
                                     self.ARCH["decoder"]["name"] + '.py')
     self.decoder = decoderModule.Decoder(params=self.ARCH["decoder"],
                                          stub_skips=stub_skips,
@@ -161,9 +163,9 @@ class Segmentator(nn.Module):
     y = self.decoder(y, skips)
     y = self.head(y)
     y = F.softmax(y, dim=1)
-    if self.CRF:
-      assert(mask is not None)
-      y = self.CRF(x, y, mask)
+    # if self.CRF:
+    #   assert(mask is not None)
+    #   y = self.CRF(x, y, mask)
     return y
 
   def save_checkpoint(self, logdir, suffix=""):

@@ -163,6 +163,27 @@ learning_map_inv: # inverse of previous map
   17: 72    # "terrain"
   18: 80    # "pole"
   19: 81    # "traffic-sign"
+color_intensity: # pointcloud intensity
+  0 : 0
+  1 : 15
+  2: 30
+  3: 45
+  4: 60
+  5: 75
+  6: 90
+  7: 105
+  8: 120
+  9: 130
+  10: 140
+  11: 150
+  12: 160
+  13: 170
+  14: 180
+  15: 190
+  16: 200
+  17: 210
+  18: 220
+  19: 240
 learning_ignore: # Ignore classes
   0: True      # "unlabeled", and others ignored
   1: False     # "car"
